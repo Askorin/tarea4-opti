@@ -6,7 +6,7 @@ import numpy as np
 from pprint import pprint
 
 class TSP:
-    def __init__(self, tsplib_file, optimal_tour_file=None):
+    def __init__(self, tsplib_file, optimal_tour_file=None, name=None):
         """
         Inicializa un problema TSP (asimétrico, en este caso) con un archivo TSPLIB95
         
@@ -16,6 +16,8 @@ class TSP:
         """
         # Cargamos la instancia del problema
         self.problem = tsplib95.load(tsplib_file)
+
+        self.name = name
         
         # Grafo NetworkX con índices normalizados indexados desde el 0
         self.G = self.problem.get_graph(normalize=True)
@@ -77,7 +79,7 @@ class TSP:
 
         return cost
 
-    def visualize(self, sequence=None, show_labels=True, title="Visualización Problema"):
+    def visualize(self, sequence=None, show_labels=True, title="Visualización"):
         """
         Visualiza el grafo del problema. Si se otorga una secuencia, resalta el circuito.
         """
