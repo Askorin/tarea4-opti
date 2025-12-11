@@ -1,15 +1,12 @@
-from gurobipy import *
 from tsp import TSP
-import networkx as nx
-
-
 from gurobipy import *
-from tsp import TSP
 import networkx as nx
+import numpy as np
 
-def make_gg_gurobi_model(problem: TSP):
+def make_gg_gurobi_model(problem: TSP) -> tuple:
     """
     Construye y retorna un modelo de Gurobi a partir del problema ATSP, con formulación GG
+    Adicionalmente retorna la variable de decisión
     """
 
     mdl = Model(f"gg_{problem.name}") # Fixed string formatting
@@ -32,7 +29,6 @@ def make_gg_gurobi_model(problem: TSP):
         mdl.addConstr(x.sum('*', i) == 1, name=f"in_degree_{i}")
 
     # 2. Fuente (flujo): El nodo 0 envía n - 1 unidades en total
-    # ERROR FIX: Se eliminó el bucle 'for j in G.nodes()' que rodeaba esta restricción
     mdl.addConstr(y.sum(0, '*') == n - 1, name="source_flow")
 
     # 3. Conservación de flujo 
@@ -54,15 +50,17 @@ def make_gg_gurobi_model(problem: TSP):
     # --- FO ---
     mdl.setObjective(quicksum(c[i, j] * x[i, j] for i, j in G.edges()), GRB.MINIMIZE)
     
-    return mdl
+    return mdl, x
 
-def gg_gurobi_solve(problem: TSP, time_limit: int) -> dict:
+def gg_gurobi_solve(problem: TSP, time_limit: int) -> tuple[dict, np.ndarray]:
     """
     Resuelve un problema de ATSP con la formulacion GG, utilizando gurobi.
-    Retorna un diccionario con los datos de la solución, tiempo de ejecución, metadata, etc.
+    Retorna una tupla:
+        1. Un diccionario con los datos de la solución, tiempo de ejecución, metadata, etc.
+        2. La matriz de decisión
     """
 
-    mdl = make_gg_gurobi_model(problem)
+    mdl, x = make_gg_gurobi_model(problem)
     print(f"Resolviendo {problem.name}")
     mdl.setParam("TimeLimit", time_limit)
     mdl.setParam("OutputFlag", 0)
@@ -107,4 +105,10 @@ def gg_gurobi_solve(problem: TSP, time_limit: int) -> dict:
         "func_obj": func
     }
 
-    return solution_dict
+    x_solution_matrix = np.zeros((num_nodes, num_nodes))
+    for i in range(num_nodes):
+        for j in range(num_nodes):
+            x_solution_matrix[i, j] = x[i, j].X
+
+
+    return solution_dict, x_solution_matrix

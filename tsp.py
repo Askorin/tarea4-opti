@@ -57,6 +57,38 @@ class TSP:
             neighbors.append((neighbor, weight))
         return neighbors
 
+    def validate_solution_matrix(self, matrix: np.ndarray) -> list | None:
+        """
+        Dada una matriz de solución binaria, se valida su calidad como solución, y se retorna
+        la secuencia de vértices correspondiente. 
+        """
+        # Verificación previa de branching
+        if not (np.all(matrix.sum(axis=1) == 1) and np.all(matrix.sum(axis=0) == 1)):
+            print("Fallo de grados.")
+            return None
+
+        node = 0
+        tour = [0]
+        visited = {0}
+
+        for _ in range(self.n - 1):
+            next_node = np.argmax(matrix[node, :])
+            if (next_node in visited):
+                print(f"Error en índice {node}, repetición")
+                return None
+
+            visited.add(next_node)
+            tour.append(next_node)
+            node = next_node
+
+        # Verificamos cierre
+        last_node = tour[-1]
+        if matrix[last_node, 0] != 1:
+            print("Error: Circuito no se cierra correctamente.")
+
+
+        return tour
+
     def evaluate_solution(self, sequence):
         """
         Dada una secuencia solución, lista de indices de nodos, la evalua calculando el costo.
