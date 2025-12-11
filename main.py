@@ -2,6 +2,7 @@ from tsp import TSP
 from pathlib import Path
 import random
 from gg_gurobi import gg_gurobi_solve, make_gg_gurobi_model
+from utils import instance_loader
 
 CURRENT_DIR = Path.cwd()
 DIR_INSTANCES = CURRENT_DIR / "instances"
@@ -15,40 +16,20 @@ small_instances = ["br17.atsp", "ftv33.atsp", "p43.atsp", "ry48p.atsp"]
 medium_instances = ["ft70.atsp", "ftv170.atsp", "ftv64.atsp", "kro124p.atsp"]
 large_instances = ["rbg323.atsp", "rbg358.atsp"]
 
-
-def instance_loader() -> dict:
-    """
-    Retorna un diccionario con los problemas ATSP en la carpeta de instancias.
-    """
-    problem_dict = {
-        "small": [],
-        "medium": [],
-        "large": []
-    }
-    
-    for instance in small_instances:
-        problem_dict["small"].append(
-                TSP(DIR_INSTANCES_S / instance, name=instance.replace(".atsp", ""))
-        )
-
-    for instance in medium_instances:
-        problem_dict["medium"].append(
-                TSP(DIR_INSTANCES_M / instance, name=instance.replace(".atsp", ""))
-        )
-
-    for instance in large_instances:
-        problem_dict["large"].append(
-                TSP(DIR_INSTANCES_L / instance, name=instance.replace(".atsp", ""))
-        )
-
-    return problem_dict
-
+VISUALIZE = False
 
 if __name__ == "__main__":
-    
+
     # Ejemplo de uso
 
-    problem_dict = instance_loader()
+    problem_dict = instance_loader(
+        small_instances,
+        medium_instances,
+        large_instances,
+        DIR_INSTANCES_S,
+        DIR_INSTANCES_M,
+        DIR_INSTANCES_L,
+    )
 
     # Un problema pequeño al azar
     problemita = random.choice(problem_dict["small"])
@@ -65,7 +46,14 @@ if __name__ == "__main__":
     # --- Ejemplo de Resoluciones Problemas Pequeños
 
     for problem in problem_dict["small"]:
-        print(f"Intentando resolver {problem.name} con formulación gg, solver gurobi...\n")
-        data = gg_gurobi_solve(problem, time_limit=3600)
-        print("\n----------------------------\n")
+        print(
+            f"Intentando resolver {problem.name} con formulación gg, solver gurobi...\n"
+        )
+        data, solution_matrix = gg_gurobi_solve(problem, time_limit=3600)
+        tour = problem.validate_solution_matrix(solution_matrix)
+        if tour:
+            print(f"Solución es válida{'' if not VISUALIZE else ', visualizando...'}")
+            if VISUALIZE:
+                problem.visualize(tour, title=f"Visualización {problem.name}")
 
+        print("\n----------------------------\n")
