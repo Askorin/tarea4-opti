@@ -1,6 +1,7 @@
 from docplex.mp.model import Model
 from tsp import TSP
 import networkx as nx
+import numpy as np
 
 def make_gg_cplex_model(problem: TSP):
     mdl = Model(name = f"gg_cplex_{problem.name}")
@@ -63,10 +64,10 @@ def make_gg_cplex_model(problem: TSP):
         mdl.sum(c[i, j] * x[i, j] for i, j in G.edges())
     )
 
-    return mdl
+    return mdl, x
 
-def gg_cplex_solve(problem: TSP, time_limit: int) -> dict:
-    mdl = make_gg_cplex_model(problem)
+def gg_cplex_solve(problem: TSP, time_limit: int) -> tuple[dict, np.ndarray]:
+    mdl, x = make_gg_cplex_model(problem)
     print(f"Resolviendo {problem.name}")
 
     mdl.set_time_limit(time_limit)
@@ -86,6 +87,8 @@ def gg_cplex_solve(problem: TSP, time_limit: int) -> dict:
     gap_str = "N/A"
     func = "N/A"
 
+    x_solution_matrix = np.zeros((num_nodes, num_nodes))
+
     if sol is not None:
         func = mdl.objective_value
         gap = mdl.solve_details.mip_relative_gap
@@ -94,6 +97,11 @@ def gg_cplex_solve(problem: TSP, time_limit: int) -> dict:
             gap_str = "0.00%"
         else:
             gap_str = f"{gap * 100:.6f}%"
+
+        for (u, v), var in x.items():
+            if round(var.solution_value) == 1:
+                x_solution_matrix[u, v] = 1
+
     else:
         func = "INFACTIBLE"
 
@@ -113,5 +121,6 @@ def gg_cplex_solve(problem: TSP, time_limit: int) -> dict:
         "func_obj": func,
     }
 
-    return solution_dict
+
+    return solution_dict, x_solution_matrix
 
