@@ -2,6 +2,7 @@ from tsp import TSP
 from pathlib import Path
 import random
 from gg_gurobi import gg_gurobi_solve, make_gg_gurobi_model
+from gg_cplex import gg_cplex_solve, make_gg_cplex_model
 from utils import instance_loader
 
 CURRENT_DIR = Path.cwd()
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     print(f"Costo: {problemita.evaluate_solution(dummy_sol)}")
 
     # Visualizamos
-    problemita.visualize(dummy_sol, title=f"Visualización {problemita.name}")
+    #problemita.visualize(dummy_sol, title=f"Visualización {problemita.name}")
 
     # --- Ejemplo de Resoluciones Problemas Pequeños
 
@@ -49,6 +50,7 @@ if __name__ == "__main__":
         print(
             f"Intentando resolver {problem.name} con formulación gg, solver gurobi...\n"
         )
+        #data = gg_cplex_solve(problem, time_limit=3600)
         data, solution_matrix = gg_gurobi_solve(problem, time_limit=3600)
         tour = problem.validate_solution_matrix(solution_matrix)
         if tour:
