@@ -14,10 +14,15 @@ DIR_INSTANCES_L = DIR_INSTANCES / "large"
 
 # 4-4-2 para un total de 10
 small_instances = ["br17.atsp", "ftv33.atsp", "p43.atsp", "ry48p.atsp"]
+small_instances = ["p43.atsp"]
 medium_instances = ["ft70.atsp", "ftv170.atsp", "ftv64.atsp", "kro124p.atsp"]
 large_instances = ["rbg323.atsp", "rbg358.atsp"]
 
 VISUALIZE = False
+
+def test(out_dir):
+    return
+
 
 if __name__ == "__main__":
 
@@ -50,12 +55,14 @@ if __name__ == "__main__":
         print(
             f"Intentando resolver {problem.name} con formulación gg, solver gurobi...\n"
         )
-        #data = gg_cplex_solve(problem, time_limit=3600)
-        data, solution_matrix = gg_gurobi_solve(problem, time_limit=3600)
-        tour = problem.validate_solution_matrix(solution_matrix)
-        if tour:
+        data_cplex, solution_matrix_cplex = gg_cplex_solve(problem, time_limit=3600)
+        #data_gurobi, solution_matrix_gurobi = gg_gurobi_solve(problem, time_limit=3600)
+        tour_cplex = problem.validate_solution_matrix(solution_matrix_cplex)
+        #tour_gurobi = problem.validate_solution_matrix(solution_matrix_gurobi)
+        if tour_cplex:
             print(f"Solución es válida{'' if not VISUALIZE else ', visualizando...'}")
-            print(f"Costo verificado: {problem.evaluate_solution(tour)}")
+            #print(f"Costo verificado cplex: {problem.evaluate_solution(tour_cplex)}")
+            #print(f"Costo verificado gurobi: {problem.evaluate_solution(tour_gurobi)}")
             if VISUALIZE:
                 problem.visualize(tour, title=f"Visualización {problem.name}")
 

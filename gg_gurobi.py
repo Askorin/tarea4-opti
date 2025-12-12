@@ -86,6 +86,12 @@ def gg_gurobi_solve(problem: TSP, time_limit: int) -> tuple[dict, np.ndarray]:
         else:
             gap_str = f"{gap * 100:.6f}%"
 
+
+        x_solution_matrix = np.zeros((num_nodes, num_nodes))
+        for i in range(num_nodes):
+            for j in range(num_nodes):
+                x_solution_matrix[i, j] = x[i, j].X
+
     elif model.status == GRB.INFEASIBLE:
         func = "INFACTIBLE"
 
@@ -105,10 +111,6 @@ def gg_gurobi_solve(problem: TSP, time_limit: int) -> tuple[dict, np.ndarray]:
         "func_obj": func
     }
 
-    x_solution_matrix = np.zeros((num_nodes, num_nodes))
-    for i in range(num_nodes):
-        for j in range(num_nodes):
-            x_solution_matrix[i, j] = x[i, j].X
 
 
     return solution_dict, x_solution_matrix
