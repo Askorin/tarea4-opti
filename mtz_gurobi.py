@@ -78,6 +78,8 @@ def mtz_gurobi_solve(problem, time_limit: int):
 
     print(f"Resolviendo {instance}")
 
+    x_matrix = np.zeros((n, n))
+
     if mdl.SolCount > 0:
         gap = mdl.MIPGap
         func = mdl.ObjVal
@@ -86,6 +88,14 @@ def mtz_gurobi_solve(problem, time_limit: int):
             gap_str = "0.00%"
         else:
             gap_str = f"{gap*100:.6f}%"
+
+        # --- Matriz solución ---
+        for i in range(n):
+            for j in range(n):
+                try:
+                    x_matrix[i, j] = x[i, j].X
+                except:
+                    x_matrix[i, j] = 0
 
     print(f"Resultado de {instance}: F.O = {func}, Gap = {gap_str}, Tiempo = {cpu_time:.2f}s")
 
@@ -102,13 +112,6 @@ def mtz_gurobi_solve(problem, time_limit: int):
         "func_obj": func,
     }
 
-    # --- Matriz solución ---
-    x_matrix = np.zeros((n, n))
-    for i in range(n):
-        for j in range(n):
-            try:
-                x_matrix[i, j] = x[i, j].X
-            except:
-                x_matrix[i, j] = 0
+    
 
     return solution_dict, x_matrix
