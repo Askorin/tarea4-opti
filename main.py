@@ -10,6 +10,8 @@ from gg_cplex import gg_cplex_solve
 from mtz_gurobi import mtz_gurobi_solve
 from mtz_cplex import mtz_cplex_solve
 from utils import instance_loader
+import networkx as nx
+import numpy as np
 
 CURRENT_DIR = Path.cwd()
 DIR_INSTANCES = CURRENT_DIR / "instances"
@@ -24,6 +26,27 @@ medium_instances = ["ft70.atsp", "ftv170.atsp", "ftv64.atsp", "kro124p.atsp"]
 large_instances = ["rbg323.atsp", "rbg358.atsp"]
 
 VISUALIZE = False
+
+def visualize_pathological(out_dir):
+    patho = DIR_INSTANCES_S / "p43.atsp"
+    problem = TSP(patho)
+    data, matrix = gg_gurobi_solve(problem, 3600)
+    tour = problem.validate_solution_matrix(matrix) 
+    
+    adjc_matrix = nx.adjacency_matrix(problem.G).toarray()
+    print(f"### CV: {np.std(adjc_matrix) / np.mean(adjc_matrix)} ###")
+
+    problem.visualize(sequence=tour, title="Visualizacion p43.atsp")
+
+
+    not_patho = DIR_INSTANCES_S / "ftv33.atsp"
+    problem = TSP(not_patho)
+    data, matrix = gg_gurobi_solve(problem, 3600)
+    tour = problem.validate_solution_matrix(matrix) 
+
+    adjc_matrix = nx.adjacency_matrix(problem.G).toarray()
+    print(f"### CV: {np.std(adjc_matrix) / np.mean(adjc_matrix)} ###")
+    problem.visualize(sequence=tour, title="Visualizacion ftv33.atsp")
 
 def test(out_dir):
     """
@@ -110,4 +133,5 @@ def test(out_dir):
 
 if __name__ == "__main__":
     # Ejecuta el benchmark y guarda en la carpeta 'resultados'
-    test("resultados")
+    #test("resultados")
+    visualize_pathological("images")
