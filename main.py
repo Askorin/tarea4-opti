@@ -53,6 +53,7 @@ if __name__ == "__main__":
         tour = problem.validate_solution_matrix(solution_matrix)
         if tour:
             print(f"Solución es válida{'' if not VISUALIZE else ', visualizando...'}")
+            print(f"Costo verificado: {problem.evaluate_solution(tour)}")
             if VISUALIZE:
                 problem.visualize(tour, title=f"Visualización {problem.name}")
 

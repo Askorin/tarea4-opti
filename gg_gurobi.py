@@ -62,8 +62,8 @@ def gg_gurobi_solve(problem: TSP, time_limit: int) -> tuple[dict, np.ndarray]:
 
     mdl, x = make_gg_gurobi_model(problem)
     print(f"Resolviendo {problem.name}")
-    mdl.setParam("TimeLimit", time_limit)
     mdl.setParam("OutputFlag", 0)
+    mdl.setParam("TimeLimit", time_limit)
     mdl.optimize()
 
     # Datos para el CSV
